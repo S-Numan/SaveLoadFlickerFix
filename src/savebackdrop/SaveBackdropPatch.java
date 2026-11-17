@@ -2,6 +2,7 @@ package savebackdrop;
 
 import java.nio.IntBuffer;
 
+import com.fs.starfarer.api.Global;
 import org.lwjgl.BufferUtils;
 import org.lwjgl.opengl.GL11;
 
@@ -51,7 +52,7 @@ public class SaveBackdropPatch {
             if (hasFrame) drawFrame();
         } catch (Throwable t) {
             broken = true;
-            System.out.println("[SaveLoadBackdrop] disabled itself after an error: " + t);
+            Global.getLogger(SaveBackdropPatch.class).error("disabled itself after an error: " + t);
         }
     }
 
