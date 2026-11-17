@@ -15,7 +15,7 @@ val zipName = "SaveLoadBackdrop.zip"
 //Each entry is the jar name. The build searches every mod /jars/ folder for a matching file ("LazyLib.jar" -> "Starsector/mods/LazyLib/jars/LazyLib.jar")
 //Mods added this way still need to be added to mod_info.json if they are always required (hard-dependency).
 val modDependencies = listOf(
-    "PatchLib.jar"
+    "PatchLibAPI.jar"
 )
 
 
