@@ -17,9 +17,9 @@ import patchlib.api.store.PatchData;
 
 /**
  * Prevent flickering between two frames or a black screen during the save/load progress overlay.
- *
+ * <p>
  * The overlay's draw method paints only its own widgets and then swaps buffers, so the back buffer holds stale contents behind them. This can cause issues as mentioned above.
- * On the first draw, this patch copies the last frame shown to the player into a texture.
+ * On the first draw, this patch copies the frame shown to the player into a texture.
  * Every draw then paints that texture over the whole screen before the overlay's widgets.
  */
 @Patch(target = @ClassMatch(
@@ -52,7 +52,7 @@ public class SaveBackdropPatch {
             if (hasFrame) drawFrame();
         } catch (Throwable t) {
             broken = true;
-            Global.getLogger(SaveBackdropPatch.class).error("disabled itself after an error: " + t);
+            Global.getLogger(SaveBackdropPatch.class).error("disabled itself after an error: ", t);
         }
     }
 
@@ -63,20 +63,21 @@ public class SaveBackdropPatch {
         if (w <= 0 || h <= 0) return false;
 
         int prevTexture = GL11.glGetInteger(GL11.GL_TEXTURE_BINDING_2D);
-        int prevReadBuffer = GL11.glGetInteger(GL11.GL_READ_BUFFER);
+        GL11.glGetError(); // clear any stale error, so the check below only sees ours
         try {
             if (texture == 0) texture = GL11.glGenTextures();
             GL11.glBindTexture(GL11.GL_TEXTURE_2D, texture);
-            GL11.glReadBuffer(GL11.GL_FRONT); // the frame the player is looking at right now
             GL11.glCopyTexImage2D(GL11.GL_TEXTURE_2D, 0, GL11.GL_RGB, x, y, w, h, 0);
             GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_MIN_FILTER, GL11.GL_LINEAR);
             GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_MAG_FILTER, GL11.GL_LINEAR);
             GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_WRAP_S, GL11.GL_CLAMP);
             GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_WRAP_T, GL11.GL_CLAMP);
         } finally {
-            GL11.glReadBuffer(prevReadBuffer);
             GL11.glBindTexture(GL11.GL_TEXTURE_2D, prevTexture);
         }
+        // If the copy failed (for example on a driver that refuses it), draw nothing rather than garbage, and don't leave the error flag set for the game to trip over.
+        if (GL11.glGetError() != GL11.GL_NO_ERROR) return false;
+
         texX = x; texY = y; texW = w; texH = h;
         return true;
     }
