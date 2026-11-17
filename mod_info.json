@@ -1,0 +1,12 @@
+{
+	"id": "save_load_backdrop",
+	"name": "Save Load Backdrop",
+	"author": "S-Numan",
+	"version": "1.0.0",
+	"description": "Prevent flickering between two frames or a black screen during the save/load progress overlay..",
+	"gameVersion": "0.98.5a-RC7",
+	"jars": ["jars/SaveLoadBackdrop.jar"],
+	"dependencies": [
+		{"id": "patchlib", "name": "PatchLib"}
+	]
+}
